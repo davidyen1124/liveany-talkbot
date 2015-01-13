@@ -12,3 +12,4 @@ Here comes the `liveany-talkbot`!
 `python liveany.py`
 
 ### Enjoy people talking to themselves:
+![Talking to themselves](https://raw.githubusercontent.com/davidyen1124/liveany-talkbot/master/screenshots/1.png "Talking to themselves")
