@@ -6,13 +6,14 @@ from time import time, sleep
 
 import requests
 from websocket import create_connection, WebSocketTimeoutException
-from redis import Redis
 from colorama import Fore
-
-redis = Redis()
 
 LIVEANY_URL = 'http://ws.liveany.com:18089/socket.io/'
 WS_URL = 'ws://ws.liveany.com:18089/socket.io/?lang=zh-tw&platform=web&EIO=3&transport=websocket&sid={}'
+
+first = None
+second = None
+is_disconnect = False
 
 
 def get_token():
@@ -61,36 +62,31 @@ def bot(i):
 
     # get messages in infinity loop
     while True:
-        # if is_disconnect is 1, then close the connection
-        if redis.get('is_disconnect') == b'1':
+        # close connection if is_disconnect is true
+        if is_disconnect:
             ws.close()
             break
 
         # get message that we should send
-        first = redis.get('first')
-        second = redis.get('second')
         if i == '0' and first:
-            # convert byte string to unicode string
-            first = first.decode('utf-8')
             # send message to user
             ws.send('42["say","%s"]' % (first))
-            # clear first in redis
-            redis.delete('first')
             print(Fore.RED + '1:', first)
+            global first
+            first = None
         if i == '1' and second:
-            # convert byte string to unicode string
-            second = second.decode('utf-8')
             # send message to user
             ws.send('42["say","%s"]' % (second))
-            # clear second in redis
-            redis.delete('second')
             print(Fore.GREEN + '2:', second)
+            global second
+            second = None
 
         # if user hasn't sent more that three messages,
         # and they don't speak for thrity seconds then disconnect!
         if msg_count < 3 and time() - start_time > 30:
             ws.close()
-            redis.set('is_disconnect', '1')
+            global is_disconnect
+            is_disconnect = True
             break
 
         # receive message, if encounter timeout then start again
@@ -107,15 +103,18 @@ def bot(i):
             if m:
                 if i == '0':
                     # update message for second
-                    redis.set('second', m.group(1))
+                    global second
+                    second = m.group(1)
                 elif i == '1':
                     # update message for first
-                    redis.set('first', m.group(1))
+                    global first
+                    first = m.group(1)
             msg_count += 1
         elif '42["close",null]' in message:
             # close connection
             ws.close()
-            redis.set('is_disconnect', '1')
+            global is_disconnect
+            is_disconnect = True
             break
 
 
@@ -123,10 +122,12 @@ def main():
     # clear text color
     print(Fore.RESET)
 
-    # delete first, second, is_disconnect in redis
-    redis.delete('first')
-    redis.delete('second')
-    redis.set('is_disconnect', '0')
+    global first
+    first = None
+    global second
+    second = None
+    global is_disconnect
+    is_disconnect = False
 
     # create a pool
     pool = ThreadPool(2)
