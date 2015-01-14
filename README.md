@@ -1,8 +1,10 @@
 # Liveany talkbot
 
 Liveany is a platform that you can talk to stranger anonymously.
-<br>This is a small man-in-the-middle demo for liveany.
-<br>Be sure not to leave any personal infos in this platform.
+
+This is a small man-in-the-middle demo for liveany.
+
+Be sure not to leave any personal infos in this platform.
 
 Here comes the `liveany-talkbot`!
 
