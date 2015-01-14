@@ -68,7 +68,7 @@ def bot(i):
         # get message that we should send
         first = redis.get('first')
         second = redis.get('second')
-        if i == 0 and first:
+        if i == '0' and first:
             # convert byte string to unicode string
             first = first.decode('utf-8')
             # send message to user
@@ -76,7 +76,7 @@ def bot(i):
             # clear first in redis
             redis.delete('first')
             print('1:', first)
-        if i == 1 and second:
+        if i == '1' and second:
             # convert byte string to unicode string
             second = second.decode('utf-8')
             # send message to user
@@ -104,10 +104,10 @@ def bot(i):
             # user sends us message
             m = re.search('42\["say","(.+?)"\]', message)
             if m:
-                if i == 0:
+                if i == '0':
                     # update message for second
                     redis.set('second', m.group(1))
-                elif i == 1:
+                elif i == '1':
                     # update message for first
                     redis.set('first', m.group(1))
             msg_count += 1
@@ -127,11 +127,11 @@ def main():
     # create a pool
     pool = Pool(2)
     # start first user
-    pool.apply_async(bot, 0)
+    pool.apply_async(bot, '0')
     # start second user after one second,
     # so they won't match together
     sleep(1)
-    pool.apply_async(bot, 1)
+    pool.apply_async(bot, '1')
 
     # close pool and wait for them to disconnect
     pool.close()
