@@ -1,7 +1,7 @@
 from time import time
 import json
 import re
-from multiprocessing.pool import Pool
+from multiprocessing.pool import ThreadPool
 from time import time, sleep
 
 import requests
@@ -125,7 +125,7 @@ def main():
     redis.set('is_disconnect', '0')
 
     # create a pool
-    pool = Pool(2)
+    pool = ThreadPool(2)
     # start first user
     pool.apply_async(bot, '0')
     # start second user after one second,
