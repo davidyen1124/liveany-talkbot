@@ -7,6 +7,7 @@ from time import time, sleep
 import requests
 from websocket import create_connection, WebSocketTimeoutException
 from redis import Redis
+from colorama import Fore
 
 redis = Redis()
 
@@ -75,7 +76,7 @@ def bot(i):
             ws.send('42["say","%s"]' % (first))
             # clear first in redis
             redis.delete('first')
-            print('1:', first)
+            print(Fore.RED + '1:', first)
         if i == '1' and second:
             # convert byte string to unicode string
             second = second.decode('utf-8')
@@ -83,7 +84,7 @@ def bot(i):
             ws.send('42["say","%s"]' % (second))
             # clear second in redis
             redis.delete('second')
-            print('2:', second)
+            print(Fore.GREEN + '2:', second)
 
         # if user hasn't sent more that three messages,
         # and they don't speak for thrity seconds then disconnect!
@@ -119,6 +120,9 @@ def bot(i):
 
 
 def main():
+    # clear text color
+    print(Fore.RESET)
+
     # delete first, second, is_disconnect in redis
     redis.delete('first')
     redis.delete('second')
