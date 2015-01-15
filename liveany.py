@@ -39,6 +39,10 @@ def get_token():
 
 def bot(i):
     '''A bot that get and send messages.'''
+    global first
+    global second
+    global is_disconnect
+
     # record how many messages has been sent
     msg_count = 0
 
@@ -72,20 +76,17 @@ def bot(i):
             # send message to user
             ws.send('42["say","%s"]' % (first))
             print(Fore.RED + '1:', first)
-            global first
             first = None
         if i == '1' and second:
             # send message to user
             ws.send('42["say","%s"]' % (second))
             print(Fore.GREEN + '2:', second)
-            global second
             second = None
 
         # if user hasn't sent more that three messages,
         # and they don't speak for thrity seconds then disconnect!
         if msg_count < 3 and time() - start_time > 30:
             ws.close()
-            global is_disconnect
             is_disconnect = True
             break
 
@@ -103,17 +104,14 @@ def bot(i):
             if m:
                 if i == '0':
                     # update message for second
-                    global second
                     second = m.group(1)
                 elif i == '1':
                     # update message for first
-                    global first
                     first = m.group(1)
             msg_count += 1
         elif '42["close",null]' in message:
             # close connection
             ws.close()
-            global is_disconnect
             is_disconnect = True
             break
 
