@@ -46,6 +46,9 @@ def bot(i):
     # record how many messages has been sent
     msg_count = 0
 
+    # record how many times user sends hi
+    hi_count = 0
+
     # save current time before connection to server
     start_time = time()
 
@@ -90,6 +93,13 @@ def bot(i):
             is_disconnect = True
             break
 
+        # if both users send more than 20 hi in conversation,
+        # maybe two thread matchs together
+        if hi_count >= 20:
+            ws.close()
+            is_disconnect = True
+            break
+
         # receive message, if encounter timeout then start again
         try:
             message = ws.recv()
@@ -108,6 +118,9 @@ def bot(i):
                 elif i == '1':
                     # update message for first
                     first = m.group(1)
+                # if message is 哈囉, add one to hi_count
+                if m.group(1) == '哈囉':
+                    hi_count += 1
             msg_count += 1
         elif '42["close",null]' in message:
             # close connection
