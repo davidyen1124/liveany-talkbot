@@ -1,3 +1,5 @@
+#!/usr/bin/env python3.3
+
 from time import time
 import json
 import re
@@ -8,8 +10,8 @@ import requests
 from websocket import create_connection, WebSocketTimeoutException
 from colorama import Fore
 
-LIVEANY_URL = 'http://ws.liveany.com:18089/socket.io/'
-WS_URL = 'ws://ws.liveany.com:18089/socket.io/?lang=zh-tw&platform=web&EIO=3&transport=websocket&sid={}'
+LIVEANY_URL = 'http://60.199.193.88:6007/socket.io/'
+WS_URL = 'ws://60.199.193.88:6007/socket.io/?lang=zh-tw&platform=web&EIO=3&transport=websocket&sid={}'
 
 first = None
 second = None
@@ -28,7 +30,7 @@ def get_token():
         'platform': 'web',
         'EIO': '3',
         'transport': 'polling',
-        't': '{}-0'.format(int(time() * 1000))
+        't': '{}-2'.format(int(time() * 1000))
     }
     res = requests.get(LIVEANY_URL, params=params, headers=headers)
     # first five words are useless
@@ -52,11 +54,41 @@ def bot(i):
     # save current time before connection to server
     start_time = time()
 
+
+    sid = get_token()
     # connect to server
-    ws = create_connection(WS_URL.format(get_token()))
     # set timeout as one second, so it won't block in recv()
+
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.69 Safari/537.36',
+        'Referer': 'http://www.liveany.com/web.php',
+    }
+    params = {
+        'lang': 'zh-tw',
+        'platform': 'web',
+        'EIO': '3',
+        'transport': 'polling',
+        't': '{}-1'.format(int(time() * 1000)),
+        'sid': sid
+    }
+    res = requests.get(LIVEANY_URL, params=params, headers=headers)
+    ws = create_connection(WS_URL.format(sid))
     ws.settimeout(1)
 
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.69 Safari/537.36',
+        'Referer': 'http://www.liveany.com/web.php',
+    }
+    params = {
+        'lang': 'zh-tw',
+        'platform': 'web',
+        'EIO': '3',
+        'transport': 'polling',
+        't': '{}-2'.format(int(time() * 1000)),
+        'sid': sid
+    }
+    res = requests.post(LIVEANY_URL, params=params, headers=headers,data='12:42["room",0]')
+    # dont know what is '12:42["room",0]'
     # initialize connection with anonymous
     ws.send('2probe')
     message = ws.recv()
@@ -92,6 +124,11 @@ def bot(i):
             ws.close()
             is_disconnect = True
             break
+
+        if time() - start_time > 1200:
+            ws.close()
+            is_disconnect = True
+            break            
 
         # if both users send more than 20 hi in conversation,
         # maybe two thread matchs together
