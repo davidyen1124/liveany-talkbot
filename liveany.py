@@ -103,7 +103,6 @@ def bot(i):
     while True:
         # close connection if is_disconnect is true
         if is_disconnect:
-            print("is")
             ws.close()
             break
 
@@ -125,6 +124,11 @@ def bot(i):
             ws.close()
             is_disconnect = True
             break
+
+        if time() - start_time > 1200:
+            ws.close()
+            is_disconnect = True
+            break            
 
         # if both users send more than 20 hi in conversation,
         # maybe two thread matchs together
