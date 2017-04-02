@@ -94,7 +94,7 @@ def bot(i):
     message = ws.recv()
     if message == '3probe':
         ws.send('5')
-    print(i, 'start')
+    print(i+1, 'start')
 
     # send hello to user
     ws.send('42["say","{}"]'.format('哈囉'))
